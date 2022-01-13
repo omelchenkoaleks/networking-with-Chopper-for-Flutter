@@ -4,6 +4,8 @@ import 'recipe_model.dart';
 import 'model_response.dart';
 import 'model_converter.dart';
 
+part 'recipe_service.chopper.dart';
+
 // Here is where you re-enter API Key and ID.
 const String apiKey = '60ae7309346de8a6372afd401889e5bc';
 const String apiId = 'b925f969';
