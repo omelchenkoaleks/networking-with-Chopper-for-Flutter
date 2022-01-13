@@ -31,8 +31,37 @@ class ModelConverter implements Converter {
     return request;
   }
 
-  Response decodeJson<BodyType, InnerType>(Response response) {}
+  Response<BodyType> decodeJson<BodyType, InnerType>(Response response) {
+    final contentType = response.headers[contentTypeKey];
+    var body = response.body;
+    // Check that you’re dealing with JSON and decode the response into a string named body.
+    if (contentType != null && contentType.contains(jsonHeaders)) {
+      body = utf8.decode(response.bodyBytes);
+    }
+    try {
+      // Use JSON decoding to convert that string into a map representation.
+      final mapData = json.decode(body);
+      // When there’s an error, the server returns a field named status. Here, you check to see if the map contains such a field. If so, you return a response that embeds an instance of Error.
+      if (mapData['status'] != null) {
+        return response.copyWith<BodyType>(
+            body: Error(Exception(mapData['status'])) as BodyType);
+      }
+      // Use APIRecipeQuery.fromJson() to convert the map into the model class.
+      final recipeQuery = APIRecipeQuery.fromJson(mapData);
+      // Return a successful response that wraps recipeQuery.
+      return response.copyWith<BodyType>(
+          body: Success(recipeQuery) as BodyType);
+    } catch (e) {
+      // If get any other kind of error, wrap the response with a generic instance of Error.
+      chopperLogger.warning(e);
+      return response.copyWith<BodyType>(
+          body: Error(e as Exception) as BodyType);
+    }
+  }
 
   @override
-  Response<BodyType> convertResponse<BodyType, InnerType>(Response response) {}
+  Response<BodyType> convertResponse<BodyType, InnerType>(Response response) {
+    // This simply calls decodeJson, which defined earlier.
+    return decodeJson<BodyType, InnerType>(response);
+  }
 }
