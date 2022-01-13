@@ -23,6 +23,14 @@ abstract class RecipeService extends ChopperService {
       @Query('to') int to);
   // TODO: Add create()
 }
-// TODO: Add _addQuery()
 
-
+// This is a request interceptor that adds the API key and ID to the query parameters.
+Request _addQuery(Request req) {
+  // Creates a Map, which contains key-value pairs from the existing Request parameters.
+  final params = Map<String, dynamic>.from(req.parameters);
+  // Adds the app_id and the app_key parameters to the map.
+  params['app_id'] = apiId;
+  params['app_key'] = apiKey;
+  // Returns a new copy of the Request with the parameters contained in the map.
+  return req.copyWith(parameters: params);
+}
