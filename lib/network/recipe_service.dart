@@ -21,7 +21,26 @@ abstract class RecipeService extends ChopperService {
       @Query('q') String query,
       @Query('from') int from,
       @Query('to') int to);
-  // TODO: Add create()
+
+  static RecipeService create() {
+    // Create a ChopperClient instance.
+    final client = ChopperClient(
+      // Pass in a base URL using the apiUrl constant.
+      baseUrl: apiUrl,
+      // Pass in two interceptors. _addQuery() adds your key and ID to the query. HttpLoggingInterceptor is part of Chopper and logs all calls. It’s handy while you’re developing to see traffic between the app and the server.
+      interceptors: [_addQuery, HttpLoggingInterceptor()],
+      // Set the converter as an instance of ModelConverter.
+      converter: ModelConverter(),
+      // Use the built-in JsonConverter to decode any errors.
+      errorConverter: const JsonConverter(),
+      // Define the services created when you run the generator script.
+      services: [
+        _$RecipeService(),
+      ],
+    );
+    // Return an instance of the generated service.
+    return _$RecipeService(client);
+  }
 }
 
 // This is a request interceptor that adds the API key and ID to the query parameters.
